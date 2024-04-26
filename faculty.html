@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance Management</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: rgba(31, 43, 177, 0.5);
+      }
+      nav {
+        background-color: #d2cbcb;
+        color: #fff;
+        text-align: left;
+        padding: 10px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div>
+        <a href="student.html">Student Interface</a> |
+        <a href="faculty.html">Faculty Interface</a> |
+        <a href="administrator.html">Administrator Interface</a>
+      </div>
+    </nav>
+    <div class="container">
+      <h1>Attendance Management System</h1>
+      <form id="enrollForm">
+        <input type="text" id="studentId" placeholder="Student ID" required />
+        <input
+          type="text"
+          id="studentName"
+          placeholder="Student Name"
+          required
+        />
+        <input type="submit" value="Enroll Student" />
+      </form>
+      <form id="attendanceForm">
+        <input
+          type="number"
+          id="attendanceId"
+          placeholder="Student ID"
+          required
+        />
+        <input type="submit" value="Mark Attendance" />
+      </form>
+      <h2>Class Attendance Records</h2>
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceData">
+          <!-- Attendance records will be inserted here dynamically -->
+        </tbody>
+      </table>
+      <button id="displayStudentAttendanceBtn">
+        Display Student Attendance
+      </button>
+      <button id="displayClassAttendanceBtn">Display Class Attendance</button>
+    </div>
+
+    <!-- Include Web3.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script>
+      // JavaScript code to interact with the Solidity contract
+      // Add your contract ABI and address here
+      const contractABI = [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "studentId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "attendance",
+              type: "uint256",
+            },
+          ],
+          name: "AttendanceMarked",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "students",
+          outputs: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "attendance",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+          constant: true,
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_studentId",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_name",
+              type: "string",
+            },
+          ],
+          name: "enrollStudent",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_studentId",
+              type: "uint256",
+            },
+          ],
+          name: "markAttendance",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_studentId",
+              type: "uint256",
+            },
+          ],
+          name: "getStudentAttendance",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+          constant: true,
+        },
+        {
+          inputs: [],
+          name: "getClassAttendance",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "",
+              type: "uint256[]",
+            },
+            {
+              internalType: "string[]",
+              name: "",
+              type: "string[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+          constant: true,
+        },
+      ];
+      const contractAddress = "0xBd8040034513b2E3517392f305ACc0d01ED04f80"; // Replace with your contract address
+
+      // Initialize Web3 with Ganache provider
+      let web3 = new Web3("HTTP://127.0.0.1:7545"); // Assuming Ganache is running on localhost:7545
+      let contract = new web3.eth.Contract(contractABI, contractAddress);
+
+      // Function to enroll a student
+      function enrollStudent() {
+        let studentId = document.getElementById("studentId").value;
+        let studentName = document.getElementById("studentName").value;
+
+        // Specify the from address for the transaction (replace with your address)
+        let fromAddress = "0x5BB3B748D6919AbE31b888a2D4E3EEbF805A8E8a";
+
+        contract.methods
+          .enrollStudent(studentId, studentName)
+          .send({ from: fromAddress })
+          .then(() => {
+            alert("Student enrolled successfully!");
+          })
+          .catch((error) => {
+            console.error(error);
+            alert("Error enrolling student. Please try again.");
+          });
+      }
+
+      // Function to mark attendance
+      function markAttendance() {
+        let studentId = document.getElementById("attendanceId").value;
+
+        // Specify the from address for the transaction (replace with your address)
+        let fromAddress = "0x5BB3B748D6919AbE31b888a2D4E3EEbF805A8E8a";
+
+        contract.methods
+          .markAttendance(studentId)
+          .send({ from: fromAddress })
+          .then(() => {
+            alert("Attendance marked successfully!");
+          })
+          .catch((error) => {
+            console.error(error);
+            alert("Error marking attendance. Please try again.");
+          });
+      }
+
+      // Function to display individual student attendance
+      function displayStudentAttendance() {
+        let studentId = document.getElementById("studentId").value;
+        contract.methods
+          .getStudentAttendance(studentId)
+          .call()
+          .then((result) => {
+            console.log(result);
+            let attendanceData = document.getElementById("attendanceData");
+            attendanceData.innerHTML = ""; // Clear existing data
+
+            let row = document.createElement("tr");
+            row.innerHTML = `
+      <td>${studentId}</td>
+      <td>${result[0]}</td> <!-- Student's name at index 0 -->
+      <td>${result[1]}</td> <!-- Student's attendance at index 1 -->
+    `;
+            attendanceData.appendChild(row);
+          })
+          .catch((error) => {
+            console.error(error);
+            alert(
+              "Error fetching student attendance records. Please try again."
+            );
+          });
+      }
+
+      // Function to display class attendance records
+      function displayClassAttendance() {
+        contract.methods
+          .getClassAttendance()
+          .call()
+          .then((result) => {
+            console.log(result); // Log the result to check if data is received
+
+            let attendanceData = document.getElementById("attendanceData");
+            attendanceData.innerHTML = ""; // Clear existing data
+
+            for (let i = 0; i < result[0].length; i++) {
+              let row = document.createElement("tr");
+              row.innerHTML = `
+        <td>${result[0][i]}</td>
+        <td>${result[1][i]}</td>
+        <td>${result[2][i]}</td>
+      `;
+              attendanceData.appendChild(row);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            alert("Error fetching class attendance records. Please try again.");
+          });
+      }
+
+      // Event listener for displaying individual student attendance
+      document
+        .getElementById("displayStudentAttendanceBtn")
+        .addEventListener("click", function () {
+          displayStudentAttendance();
+        });
+
+      // Event listener for displaying class attendance records
+      document
+        .getElementById("displayClassAttendanceBtn")
+        .addEventListener("click", function () {
+          displayClassAttendance();
+        });
+
+      // Event listeners for form submissions
+      document
+        .getElementById("enrollForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          enrollStudent();
+        });
+
+      document
+        .getElementById("attendanceForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          markAttendance();
+        });
+    </script>
+  </body>
+</html>
