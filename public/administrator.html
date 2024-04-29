@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: rgba(31, 43, 177, 0.5);
+        }
+        nav {
+            background-color: #d2cbcb;
+            color: #fff;
+            text-align: left;
+            padding: 10px;
+        }
+        .logout {
+            float: right;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a href="administrator.html">Administrator Interface</a>
+            <a href="/login.html" class = "logout"> Logout </a>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Administrator Interface</h1>
+        <h2>Change Student Attendance</h2>
+        <form id="changeAttendanceForm">
+            <input type="text" id="studentId" placeholder="Student ID" required />
+            <input type="number" id="newAttendance" placeholder="New Attendance" required />
+            <input type="submit" value="Change Attendance" />
+        </form>
+    </div>
+
+    <!-- Include Web3.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script>
+        // JavaScript code to interact with the Solidity contract
+        // Add your contract ABI and address here
+        const contractABI = [
+            // Your contract ABI here
+        ];
+        const contractAddress = "0xBd8040034513b2E3517392f305ACc0d01ED04f80"; // Replace with your contract address
+
+        // Initialize Web3 with Ganache provider
+        let web3 = new Web3("HTTP://127.0.0.1:7545"); // Assuming Ganache is running on localhost:7545
+        let contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // Function to change student attendance
+        function changeStudentAttendance() {
+            let studentId = document.getElementById("studentId").value;
+            let newAttendance = document.getElementById("newAttendance").value;
+
+            // Specify the from address for the transaction (replace with your address)
+            let fromAddress = "0x5BB3B748D6919AbE31b888a2D4E3EEbF805A8E8a";
+
+            contract.methods
+                .changeStudentAttendance(studentId, newAttendance)
+                .send({ from: fromAddress })
+                .then(() => {
+                    alert("Attendance changed successfully!");
+                })
+                .catch((error) => {
+                    console.error(error);
+                    alert("Error changing attendance. Please try again.");
+                });
+        }
+
+        // Event listener for form submission
+        document
+            .getElementById("changeAttendanceForm")
+            .addEventListener("submit", function (event) {
+                event.preventDefault();
+                changeStudentAttendance();
+            });
+    </script>
+</body>
+</html>

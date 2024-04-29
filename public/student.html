@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Attendance</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: rgba(31, 43, 177, 0.5);
+      }
+      nav {
+        background-color: #d2cbcb;
+        color: #fff;
+        text-align: left;
+        padding: 10px;
+      }
+      .logout {
+            float: right;
+        }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div>
+        <a href="student.html">My Attendance</a> |
+        <a href="/login.html" class = "logout"> Logout </a>
+      </div>
+    </nav>
+    <div class="container">
+      <h1>My Attendance</h1>
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Faculty</th>
+            <th>Attendance</th>
+            <th>Total Classes</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceData">
+          <!-- Attendance records will be inserted here dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Include Web3.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script>
+      // JavaScript code to interact with the Solidity contract
+      // Add your contract ABI and address here
+      const contractABI = [
+        // Your contract ABI here
+      ];
+      const contractAddress = "0xBd8040034513b2E3517392f305ACc0d01ED04f80"; // Replace with your contract address
+
+      // Initialize Web3 with Ganache provider
+      let web3 = new Web3("HTTP://127.0.0.1:7545"); // Assuming Ganache is running on localhost:7545
+      let contract = new web3.eth.Contract(contractABI, contractAddress);
+
+      /// Function to display sample faculty attendance
+      function displaySampleFacultyAttendance() {
+        // Sample faculty attendance data
+        let facultyAttendance = [
+          { faculty: "Faculty A", attendance: 10, totalClasses: 12 },
+          { faculty: "Faculty B", attendance: 8, totalClasses: 10 },
+          { faculty: "Faculty C", attendance: 6, totalClasses: 8 },
+        ];
+
+        let attendanceData = document.getElementById("attendanceData");
+        attendanceData.innerHTML = ""; // Clear existing data
+
+        // Loop through the sample data and create table rows
+        facultyAttendance.forEach((faculty) => {
+          let row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${faculty.faculty}</td>
+            <td>${faculty.attendance}</td>
+            <td>${faculty.totalClasses}</td>
+        `;
+          attendanceData.appendChild(row);
+        });
+      }
+
+      // Call the function to display sample faculty attendance when the page loads
+      displaySampleFacultyAttendance();
+    </script>
+  </body>
+</html>
